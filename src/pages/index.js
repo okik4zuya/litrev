@@ -293,6 +293,7 @@ export default function Home() {
                           onChange={e => { setFilterTag(e.target.value) }}
                         />
                       </div>
+                      <div className='my-2 font-normal text-md'>Result: {tagList.length}</div>
                       {tagList.map((item, key) => (
                         <div key={key} className="flex items-center bg-white rounded-lg shadow-md p-4 mb-2 cursor-pointer"
                           onClick={() => setSearch(item.tag)}
@@ -319,6 +320,7 @@ export default function Home() {
                           onChange={e => { setFilterPaper(e.target.value) }}
                         />
                       </div>
+                      <div className='my-2 font-normal text-md'>Result: {paperList.length}</div>
                       {paperList.map((item, key) => (
                         <div key={key} className="flex flex-col items-center bg-white rounded-lg shadow-md p-4 mb-2"
                         >
@@ -357,6 +359,7 @@ export default function Home() {
                           onChange={e => { setFilterLit(e.target.value) }}
                         />
                       </div>
+                      <div className='my-2 font-normal tex-md'>Result: {litList.length}</div>
                       {litList.sort(function (a, b) { new Date(a.updatedAt) - new Date(b.updatedAt) }).map((item, key) => (
                         <div key={key}>
                           <LitCard data={item} handleEditClick={handleEditClick} deleteLit={deleteLit} />
