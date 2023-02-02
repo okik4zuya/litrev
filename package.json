@@ -10,14 +10,17 @@
   },
   "dependencies": {
     "@next/font": "13.1.6",
+    "@tinymce/tinymce-react": "^4.3.0",
     "debounce-promise": "3.1.2",
     "dotenv": "^16.0.3",
     "firebase": "^9.16.0",
     "fuse.js": "^6.6.2",
+    "marked": "^4.2.12",
     "next": "13.1.6",
     "prop-types": "15.7.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-quill": "^2.0.0",
     "react-select": "^5.7.0"
   },
   "devDependencies": {

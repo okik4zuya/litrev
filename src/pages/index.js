@@ -5,6 +5,11 @@ import { useEffect, useRef, useState } from 'react';
 import Creatable, { useCreatable } from 'react-select/creatable';
 import Fuse from 'fuse.js'
 import { getUnique, getUniqueTag, getUniqueValue, getUniquePaper } from '@/functions';
+import { Editor } from '@tinymce/tinymce-react';
+import 'react-quill/dist/quill.snow.css';
+import dynamic from "next/dynamic";
+const ReactQuill = dynamic(import('react-quill'), { ssr: false })
+import { marked } from 'marked';
 
 
 export default function Home() {
@@ -24,6 +29,33 @@ export default function Home() {
     text: "",
     link: "",
   })
+  // quill state
+  const [quillTheme, setQuillTheme] = useState("snow");
+  const [editorHtml, setEditorHtml] = useState("");
+  const quillFormats = [
+    'header', 'font', 'size',
+    'bold', 'italic', 'underline', 'strike', 'blockquote',
+    'list', 'bullet', 'indent',
+    'link',
+    'image', 'video'
+  ]
+  const quillModules = {
+    toolbar: [
+      [{ 'header': '1' }, { 'header': '2' }],
+      [{ size: [] }],
+      ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' },
+      { 'indent': '-1' }, { 'indent': '+1' }],
+      ['link', 'image'],
+      ['clean']
+    ],
+    clipboard: {
+      // toggle to add extra line breaks when pasting HTML:
+      matchVisual: false,
+    }
+  }
+  console.log(tempData)
+
   const blankTemp = {
     tag: "",
     title: "",
@@ -94,11 +126,11 @@ export default function Home() {
     shouldSort: true,
     matchAllTokens: true,
     findAllMatches: true,
-    threshold: 0.6,
+    threshold: 0.5,
     location: 0,
-    distance: 300,
+    distance: 200,
     ignoreLocation: false,
-    includeMatcher:true,
+    includeMatcher: true,
     maxPatternLength: 32,
     minMatchCharLength: 1,
     keys: ["tag", "title", "text"]
@@ -168,13 +200,17 @@ export default function Home() {
                     />
 
                   </div>
-                  <div className='mt-2'>
-                    <textarea
-                      className='w-full outline-none bg-white resize-none rounded-md px-2 py-1 h-32'
-                      placeholder='Insert Text inside article...'
-                      style={{ border: "1px solid hsl(0, 0%, 80%)" }}
+                  <div className='mt-2 h-60 md:h-48'>
+
+                    <ReactQuill
+                      theme={quillTheme}
+                      onChange={(value) => setTempData({ ...tempData, text: value })}
                       value={tempData.text}
-                      onChange={e => setTempData({ ...tempData, text: e.target.value })}
+                      modules={quillModules}
+                      formats={quillFormats}
+                      bounds={'.app'}
+                      placeholder="Isi text..."
+                      className='h-32'
                     />
                   </div>
                   <div className='flex justify-center mt-4'>
@@ -321,7 +357,7 @@ export default function Home() {
                           onChange={e => { setFilterLit(e.target.value) }}
                         />
                       </div>
-                      {litList.sort(function(a,b){new Date(a.updatedAt) - new Date(b.updatedAt)}).map((item, key) => (
+                      {litList.sort(function (a, b) { new Date(a.updatedAt) - new Date(b.updatedAt) }).map((item, key) => (
                         <div key={key}>
                           <LitCard data={item} handleEditClick={handleEditClick} deleteLit={deleteLit} />
                         </div>
@@ -398,8 +434,10 @@ const LitCard = (props) => {
             <path d="M18.75 6.75h1.875c.621 0 1.125.504 1.125 1.125V18a1.5 1.5 0 01-3 0V6.75z" />
           </svg>
         </div>
-        <div className='ml-2 break-all'>
-          {isExcerpt ? toExcerpt(data.text, 100) : data.text}
+        <div className='ml-2 break-word font-normal text-md' dangerouslySetInnerHTML={{
+          __html:
+            isExcerpt ? toExcerpt(data.text, 100) : data.text
+        }}>
         </div>
       </div>
       {/*Absolute*/}
