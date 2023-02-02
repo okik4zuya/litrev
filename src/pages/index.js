@@ -12,6 +12,7 @@ export default function Home() {
   const [search, setSearch] = useState("");
   const [filterTag, setFilterTag] = useState("");
   const [filterPaper, setFilterPaper] = useState("");
+  const [filterLit, setFilterLit] = useState("");
   const [tab, setTab] = useState("Tag");
   const [showForm, setShowForm] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -21,14 +22,13 @@ export default function Home() {
     tag: "",
     title: "",
     text: "",
-    link: ""
+    link: "",
   })
   const blankTemp = {
     tag: "",
     title: "",
     text: "",
-    link: ""
-
+    link: "",
   }
   const excerptLength = 100;
   const tagInput = useRef();
@@ -84,7 +84,9 @@ export default function Home() {
   }
   const handleFormButton = (e) => {
     isEdit ? updateLit(e, ID) : createLit(e);
-    setTempData(blankTemp)
+    setTempData(blankTemp);
+    setSearch("");
+    setTab("Lit");
   }
 
   // Fuzzy Search Logic
@@ -92,9 +94,11 @@ export default function Home() {
     shouldSort: true,
     matchAllTokens: true,
     findAllMatches: true,
-    threshold: 0.4,
+    threshold: 0.6,
     location: 0,
-    distance: 100,
+    distance: 300,
+    ignoreLocation: false,
+    includeMatcher:true,
     maxPatternLength: 32,
     minMatchCharLength: 1,
     keys: ["tag", "title", "text"]
@@ -109,11 +113,12 @@ export default function Home() {
   }, [])
 
   const tagOptions = getUniqueValue(lits.map(item => ({ value: item.tag, label: item.tag })));
-  const titleOptions = lits.map(item => ({ value: item.title, label: item.title }));
+  const titleOptions = getUniqueValue(lits.map(item => ({ value: item.title, label: item.title })));
   const tagList = filterTag.length === 0 ? getUniqueTag(lits) : fuseFilterTag.search(filterTag).map(item => ({ ...item.item }));
   const paperList = filterPaper.length === 0 ? getUniquePaper(lits) : fuseFilterPaper.search(filterPaper).map(item => ({ ...item.item }));
+  const litList = filterLit.length === 0 ? lits : fuse.search(filterLit).map(item => ({ ...item.item }));
   //console.log(fuseFilter.search("ti").map(item => ({...item.item})))
-  console.log(paperList)
+  //console.log(paperList)
 
 
 
@@ -223,7 +228,7 @@ export default function Home() {
               {search.length === 0 &&
                 <div className='mt-4 font-bold text-xl'>
                   <div className='flex w-full py-2 px-4 mb-8 rounded-lg overflow-hidden'>
-                    {["Tag", "Paper"].map(item => (
+                    {["Tag", "Paper", "Lit"].map(item => (
                       <div className='w-1/2 flex justify-center items-center py-2 cursor-pointer'
                         style={{
                           background: tab === item ? "rgb(80, 104, 169)" : "white",
@@ -236,7 +241,7 @@ export default function Home() {
                           background: "rgb(255, 233, 174)",
                           color: "rgb(80, 104, 169)"
                         }}>
-                          {item === "Tag" ? tagList.length : paperList.length}
+                          {item === "Tag" ? tagList.length : item === "Paper" ? paperList.length : lits.length}
                         </div>
                       </div>
                     ))}
@@ -306,13 +311,30 @@ export default function Home() {
                       ))}
                     </>
                   }
+                  {tab === "Lit" &&
+                    <>
+                      <div className='my-2 w-full'>
+                        <input
+                          className='w-full py-2 px-4 outline-none'
+                          placeholder='Filter Lit...'
+                          value={filterLit}
+                          onChange={e => { setFilterLit(e.target.value) }}
+                        />
+                      </div>
+                      {litList.sort(function(a,b){new Date(a.updatedAt) - new Date(b.updatedAt)}).map((item, key) => (
+                        <div key={key}>
+                          <LitCard data={item} handleEditClick={handleEditClick} deleteLit={deleteLit} />
+                        </div>
+                      ))}
+                    </>
+                  }
 
 
                 </div>
               }
               {search.length !== 0 && lits.length !== 0 && fuse.search(search).map(item => ({ ...item.item })).map((item, key) => (
                 <div key={key}>
-                  <LitCard key={key} data={item} handleEditClick={handleEditClick} deleteLit={deleteLit}/>
+                  <LitCard data={item} handleEditClick={handleEditClick} deleteLit={deleteLit} />
                 </div>
               ))}
 
@@ -389,7 +411,7 @@ const LitCard = (props) => {
             </svg>
 
             :
-            <svg  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l7.5-7.5 7.5 7.5m-15 6l7.5-7.5 7.5 7.5" />
             </svg>
 
