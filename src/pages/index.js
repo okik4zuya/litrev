@@ -273,7 +273,7 @@ export default function Home() {
                         onClick={() => setTab(item)}
                       >
                         <div className='flex-1 flex justify-center'>{item}</div>
-                        <div className='w-8 h-8 mr-4 flex justify-center rounded-full' style={{
+                        <div className='w-auto h-8 px-4 mr-4 flex justify-center rounded-lg' style={{
                           background: "rgb(255, 233, 174)",
                           color: "rgb(80, 104, 169)"
                         }}>
@@ -397,7 +397,7 @@ const LitCard = (props) => {
   const [isExcerpt, setIsExcerpt] = useState(true);
 
   return (
-    <div className="relative bg-white shadow-lg rounded-lg my-2 px-4 pt-2 pb-8" style={{ zIndex: "0" }}>
+    <div className="relative bg-white shadow-lg rounded-lg my-2 px-4 pt-2 pb-8" style={{ zIndex: "0", fontSize:"14px" }}>
       <div className='flex my-1'>
         <div className='w-6'>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
@@ -434,7 +434,7 @@ const LitCard = (props) => {
             <path d="M18.75 6.75h1.875c.621 0 1.125.504 1.125 1.125V18a1.5 1.5 0 01-3 0V6.75z" />
           </svg>
         </div>
-        <div className='ml-2 break-word font-normal text-md' dangerouslySetInnerHTML={{
+        <div className='ml-2 break-word font-normal' dangerouslySetInnerHTML={{
           __html:
             isExcerpt ? toExcerpt(data.text, 100) : data.text
         }}>
