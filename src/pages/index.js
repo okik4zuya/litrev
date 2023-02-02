@@ -4,13 +4,15 @@ import { collection, doc, getDocs, setDoc, query, where, onSnapshot, getDoc, upd
 import { useEffect, useRef, useState } from 'react';
 import Creatable, { useCreatable } from 'react-select/creatable';
 import Fuse from 'fuse.js'
-import { getUnique, getUniqueTag, getUniqueValue } from '@/functions';
+import { getUnique, getUniqueTag, getUniqueValue, getUniquePaper } from '@/functions';
 
 
 export default function Home() {
   const [lits, setLits] = useState([]);
   const [search, setSearch] = useState("");
   const [filterTag, setFilterTag] = useState("");
+  const [filterPaper, setFilterPaper] = useState("");
+  const [tab, setTab] = useState("Tag");
   const [showForm, setShowForm] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [ID, setID] = useState(null);
@@ -98,7 +100,8 @@ export default function Home() {
   }
 
   const fuse = new Fuse(lits, fuseOptions);
-  const fuseFilter = new Fuse(getUniqueTag(lits), fuseOptions)
+  const fuseFilterTag = new Fuse(getUniqueTag(lits), fuseOptions)
+  const fuseFilterPaper = new Fuse(getUniquePaper(lits), fuseOptions)
 
   useEffect(() => {
     getLits()
@@ -106,8 +109,10 @@ export default function Home() {
 
   const tagOptions = getUniqueValue(lits.map(item => ({ value: item.tag, label: item.tag })));
   const titleOptions = lits.map(item => ({ value: item.title, label: item.title }));
-  const tagList = filterTag.length === 0 ? getUniqueTag(lits) : fuseFilter.search(filterTag).map(item => ({ ...item.item }));
+  const tagList = filterTag.length === 0 ? getUniqueTag(lits) : fuseFilterTag.search(filterTag).map(item => ({ ...item.item }));
+  const paperList = filterPaper.length === 0 ? getUniquePaper(lits) : fuseFilterPaper.search(filterPaper).map(item => ({ ...item.item }));
   //console.log(fuseFilter.search("ti").map(item => ({...item.item})))
+  console.log(paperList)
 
 
 
@@ -128,7 +133,6 @@ export default function Home() {
                 <div className='w-full flex justify-center'>
                   <Loader />
                 </div>
-
                 :
                 <form>
                   <div className='mb-4 font-bold text-xl'>{isEdit ? "Update" : "Add"} Tag</div>
@@ -200,43 +204,92 @@ export default function Home() {
               }
             </div>
           </div>
+          <div className='px-4 w-full flex justify-center mt-4'>
+            <div className="bg-white shadow-lg rounded-lg my-2 p-4 flex items-center justify-center cursor-pointer w-full md:w-1/2"
+              onClick={handleAddClick}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 9a.75.75 0 00-1.5 0v2.25H9a.75.75 0 000 1.5h2.25V15a.75.75 0 001.5 0v-2.25H15a.75.75 0 000-1.5h-2.25V9z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
           {lits.length === 0 ?
             <div className='flex justify-center w-full mt-24'>
               <Loader />
             </div>
             :
             <div className='mt-4 w-screen md:w-1/2 px-4 overflow-auto hide-scrollbar pb-8'>
-              <div className="bg-white shadow-lg rounded-lg my-2 p-4 flex items-center justify-center cursor-pointer"
-                onClick={handleAddClick}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                  <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 9a.75.75 0 00-1.5 0v2.25H9a.75.75 0 000 1.5h2.25V15a.75.75 0 001.5 0v-2.25H15a.75.75 0 000-1.5h-2.25V9z" clipRule="evenodd" />
-                </svg>
-              </div>
               {search.length === 0 &&
-                <div className='mt-8 font-bold text-xl'>
-                  <div className='font-bold text-xl mb-2'>Pilih Tag</div>
-                  <div className='my-2 w-full'>
-                    <input
-                      className='w-full py-2 px-4 outline-none'
-                      placeholder='Filter Tag...'
-                      value={filterTag}
-                      onChange={e => { setFilterTag(e.target.value) }}
-                    />
+                <div className='mt-4 font-bold text-xl'>
+                  <div className='flex w-full py-2 px-4 mb-8 rounded-lg overflow-hidden'>
+                    {["Tag", "Paper"].map(item => (
+                      <div className='w-1/2 flex justify-center items-center py-2 cursor-pointer'
+                        style={{
+                          background: tab === item ? "rgb(80, 104, 169)" : "white",
+                          color: tab === item ? "white" : "black"
+                        }}
+                        onClick={() => setTab(item)}
+                      >{item}</div>
+                    ))}
                   </div>
-                  {tagList.map((item, key) => (
-                    <div key={key} className="flex items-center bg-white rounded-lg shadow-md p-4 mb-2 cursor-pointer"
-                      onClick={() => setSearch(item.tag)}
-                    >
-                      <div className='' style={{ width: "90%" }}>
-                        {item.tag}
+                  {tab === "Tag" &&
+                    <>
+                      <div className='font-bold text-xl mb-2'>Pilih Tag</div>
+                      <div className='my-2 w-full'>
+                        <input
+                          className='w-full py-2 px-4 outline-none'
+                          placeholder='Filter Tag...'
+                          value={filterTag}
+                          onChange={e => { setFilterTag(e.target.value) }}
+                        />
                       </div>
-                      <div className='w-full h-full flex justify-center rounded-lg' style={{ width: "10%", background: "#FFE9AE", color: "#5068a9" }}>
-                        {lits.filter(i => i.tag == item.tag).length}
-                      </div>
+                      {tagList.map((item, key) => (
+                        <div key={key} className="flex items-center bg-white rounded-lg shadow-md p-4 mb-2 cursor-pointer"
+                          onClick={() => setSearch(item.tag)}
+                        >
+                          <div className='' style={{ width: "90%" }}>
+                            {item.tag}
+                          </div>
+                          <div className='w-full h-full flex justify-center rounded-lg' style={{ width: "10%", background: "#FFE9AE", color: "#5068a9" }}>
+                            {lits.filter(i => i.tag == item.tag).length}
+                          </div>
 
-                    </div>
-                  ))}
+                        </div>
+                      ))}
+                    </>
+                  }
+                  {tab === "Paper" &&
+                    <>
+                      <div className='font-bold text-xl mb-2'>Pilih Paper</div>
+                      <div className='my-2 w-full'>
+                        <input
+                          className='w-full py-2 px-4 outline-none'
+                          placeholder='Filter Paper...'
+                          value={filterPaper}
+                          onChange={e => { setFilterPaper(e.target.value) }}
+                        />
+                      </div>
+                      {paperList.map((item, key) => (
+                        <div key={key} className="flex items-center bg-white rounded-lg shadow-md p-4 mb-2 cursor-pointer"
+                          onClick={() => setSearch(item.title)}
+                        >
+                          <div className='' style={{ width: "90%" }}>
+                            <a href={item.link}
+                              target="_blank"
+                              className="font-semibold"
+                              style={{
+                                pointerEvents: item.link ? "auto" : "none",
+                                color: item.link ? "#5068a9" : "#000000",
+                              }}
+                            >
+                              {item.title}
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  }
+
 
                 </div>
               }
