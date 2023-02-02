@@ -400,7 +400,7 @@ const LitCard = (props) => {
   const [isExcerpt, setIsExcerpt] = useState(true);
 
   return (
-    <div className="relative bg-white shadow-lg rounded-lg my-2 px-4 pt-2 pb-8" style={{ zIndex: "0", fontSize:"14px" }}>
+    <div className="relative bg-white shadow-lg rounded-lg my-2 px-4 pt-2 pb-8" style={{ zIndex: "0", fontSize:"16px" }}>
       <div className='flex my-1'>
         <div className='w-6'>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
