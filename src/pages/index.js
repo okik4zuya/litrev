@@ -10,6 +10,7 @@ import 'react-quill/dist/quill.snow.css';
 import dynamic from "next/dynamic";
 const ReactQuill = dynamic(import('react-quill'), { ssr: false })
 import { marked } from 'marked';
+import Loader from '@/components/Loader';
 
 
 export default function Home() {
@@ -23,12 +24,29 @@ export default function Home() {
   const [isEdit, setIsEdit] = useState(false);
   const [ID, setID] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const blankNote = {
+    tag:"",
+    title:"",
+    text:""
+  }
+  const [tempNote, setTempNote] = useState(blankNote);
+  const blankLit = {
+    title:"",
+    link:""
+  }
+  const [tempLit, setTempLit] = useState(blankLit)
   const [tempData, setTempData] = useState({
     tag: "",
     title: "",
     text: "",
     link: "",
   })
+  const blankTemp = {
+    tag: "",
+    title: "",
+    text: "",
+    link: "",
+  }
   // quill state
   const [quillTheme, setQuillTheme] = useState("snow");
   const [editorHtml, setEditorHtml] = useState("");
@@ -54,14 +72,8 @@ export default function Home() {
       matchVisual: false,
     }
   }
-  console.log(tempData)
+  console.log(tempLit)
 
-  const blankTemp = {
-    tag: "",
-    title: "",
-    text: "",
-    link: "",
-  }
   const excerptLength = 100;
   const tagInput = useRef();
   const searchInput = useRef();
@@ -73,9 +85,9 @@ export default function Home() {
   const createLit = async (e) => {
     e.preventDefault()
 
-    if (tempData.tag.length) {
+    if (tempNote.tag.length) {
       setIsLoading(true);
-      await addDoc(collection(db, 'literatures'), tempData)
+      await addDoc(collection(db, 'literatures'), tempLit)
       setShowForm(false)
       setTempData(blankTemp)
       setIsLoading(false);
@@ -87,14 +99,28 @@ export default function Home() {
   const updateLit = async (e, id) => {
     e.preventDefault()
     setIsLoading(true);
-    await updateDoc(doc(db, 'literatures', id), tempData);
+    await updateDoc(doc(db, 'literatures', id), tempLit);
     setIsLoading(false)
     setShowForm(!showForm);
     setIsEdit(!isEdit)
   }
   const deleteLit = async (id) => {
     if (window.confirm('Are you sure?')) {
-      await deleteDoc(doc(db, 'literatures', id), tempData);
+      await deleteDoc(doc(db, 'literatures', id), tempLit);
+    }
+
+  }
+  const createNote = async (e) => {
+    e.preventDefault()
+
+    if (tempLit.title.length) {
+      setIsLoading(true);
+      await addDoc(collection(db, 'notes'), tempLit)
+      setShowForm(false)
+      setTempData(blankLit)
+      setIsLoading(false);
+    } else {
+      alert("Silahkan isi title terlebih dahulu!")
     }
 
   }
@@ -104,19 +130,19 @@ export default function Home() {
 
   }
   const handleAddClick = () => {
-    setTempData(blankTemp)
+    setTempLit(blankLit)
     setShowForm(!showForm)
   }
   const handleEditClick = (id) => {
     setIsEdit(!isEdit)
     setID(id);
-    setTempData(lits.filter(item => item.id == id)[0])
+    setTempLit(lits.filter(item => item.id == id)[0])
     setShowForm(!showForm)
 
   }
   const handleFormButton = (e) => {
     isEdit ? updateLit(e, ID) : createLit(e);
-    setTempData(blankTemp);
+    setTempLit(blankLit);
     setSearch("");
     setTab("Lit");
   }
@@ -156,12 +182,6 @@ export default function Home() {
 
   return (
     <>
-      <Head>
-        <title>Literature Review</title>
-        <meta name="description" content="My Literature Note Taking App" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
       <main style={{ background: "#E9E8E8" }}>
         {showForm &&
           <div className='fixed top-0 left-0 bottom-0 right-0 flex items-center justify-center p-4' style={{ background: "#0000004d", zIndex: "1" }}>
@@ -190,16 +210,6 @@ export default function Home() {
                       onChange={value => setTempData({ ...tempData, title: value.value })}
                     />
                   </div>
-                  <div className='mt-2'>
-                    <input
-                      className='w-full outline-none bg-white rounded-md px-2 py-1'
-                      style={{ border: "1px solid hsl(0, 0%, 80%)" }}
-                      placeholder="Insert Article Link..."
-                      value={tempData.link}
-                      onChange={(e) => setTempData({ ...tempData, link: e.target.value })}
-                    />
-
-                  </div>
                   <div className='mt-2 h-60 md:h-48'>
 
                     <ReactQuill
@@ -227,25 +237,6 @@ export default function Home() {
           </div>
         }
         <div className='h-screen w-screen flex flex-col items-center' style={{ zIndex: "0" }}>
-          <div className="w-full py-2 px-2" style={{ background: "#5068a9" }}>
-            <div className='flex relative'>
-              <input
-                ref={searchInput}
-                value={search}
-                className='flex-1 w-full h-12 rounded-md py-1 px-4 text-xl outline-none'
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder='Search...' />
-              {search.length !== 0 &&
-
-                <div className='absolute right-4 top-2 cursor-pointer' onClick={() => setSearch("")}>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                    <path fillRule="evenodd" d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z" clipRule="evenodd" />
-                  </svg>
-
-                </div>
-              }
-            </div>
-          </div>
           <div className='px-4 w-full flex justify-center mt-4'>
             <div className="bg-white shadow-lg rounded-lg my-2 p-4 flex items-center justify-center cursor-pointer w-full md:w-1/2"
               onClick={handleAddClick}
@@ -264,23 +255,6 @@ export default function Home() {
               {search.length === 0 &&
                 <div className='mt-4 font-bold text-xl'>
                   <div className='flex w-full py-2 px-4 mb-8 rounded-lg overflow-hidden'>
-                    {["Tag", "Paper", "Lit"].map(item => (
-                      <div className='w-1/2 flex justify-center items-center py-2 cursor-pointer'
-                        style={{
-                          background: tab === item ? "rgb(80, 104, 169)" : "white",
-                          color: tab === item ? "white" : "black"
-                        }}
-                        onClick={() => setTab(item)}
-                      >
-                        <div className='flex-1 flex justify-center'>{item}</div>
-                        <div className='w-auto h-8 px-4 mr-4 flex justify-center rounded-lg' style={{
-                          background: "rgb(255, 233, 174)",
-                          color: "rgb(80, 104, 169)"
-                        }}>
-                          {item === "Tag" ? tagList.length : item === "Paper" ? paperList.length : lits.length}
-                        </div>
-                      </div>
-                    ))}
                   </div>
                   {tab === "Tag" &&
                     <>
@@ -385,11 +359,6 @@ export default function Home() {
   )
 }
 
-const Loader = () => {
-  return (
-    <div className="lds-ripple"><div></div><div></div></div>
-  )
-}
 
 const LitCard = (props) => {
   const {
@@ -478,12 +447,3 @@ const LitCard = (props) => {
   )
 }
 
-
-const toExcerpt = (str, length) => {
-  if (str.length > length) {
-    return str.slice(0, length) + '...'
-  } else {
-    return str
-  }
-
-}

@@ -19,3 +19,11 @@ export function getUniqueValue(arr) {
         ))
     )
 }
+export const toExcerpt = (str, length) => {
+    if (str.length > length) {
+        return str.slice(0, length) + '...'
+    } else {
+        return str
+    }
+
+}
