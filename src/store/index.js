@@ -3,9 +3,9 @@ import { create } from 'zustand'
 export const useStore = create((set, get) => ({
     search: 0,
     tab: "",
-    searchLit: "searchLit",
-    searchNote: "searchNote",
-    searchTag: "searchTag",
+    searchLit: "",
+    searchNote: "",
+    searchTag: "",
     lits: [],
     tags: [],
     notes: [],
