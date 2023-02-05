@@ -49,7 +49,7 @@ export const useStore = create((set, get) => ({
         includeMatcher: true,
         maxPatternLength: 32,
         minMatchCharLength: 1,
-        keys: ["tag", "title", "text"]
+        keys: ["tag", "title", "note"]
     },
 
     // Set functions
