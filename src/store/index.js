@@ -12,7 +12,33 @@ export const useStore = create((set, get) => ({
     showLitForm: false,
     showNoteForm: false,
     isEdit: false,
-    fuseOptions : {
+    fuseOptionsTag : {
+        shouldSort: true,
+        matchAllTokens: true,
+        findAllMatches: true,
+        threshold: 0.4,
+        location: 0,
+        distance: 100,
+        ignoreLocation: false,
+        includeMatcher: true,
+        maxPatternLength: 32,
+        minMatchCharLength: 1,
+        keys: ["tag"]
+    },
+    fuseOptionsLit : {
+        shouldSort: true,
+        matchAllTokens: true,
+        findAllMatches: true,
+        threshold: 0.4,
+        location: 0,
+        distance: 100,
+        ignoreLocation: false,
+        includeMatcher: true,
+        maxPatternLength: 32,
+        minMatchCharLength: 1,
+        keys: ["title"]
+    },
+    fuseOptionsNote : {
         shouldSort: true,
         matchAllTokens: true,
         findAllMatches: true,

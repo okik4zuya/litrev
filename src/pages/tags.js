@@ -5,14 +5,14 @@ import { getUniqueTag, toExcerpt } from '@/functions';
 const Tags = () => {
     const {
         notes,
-        fuseOptions,
+        fuseOptionsTag,
         searchTag,
         setSearchNote,
         setTab
     } = useStore(state => state);
 
 
-    const fuseTag = new Fuse(notes, fuseOptions);
+    const fuseTag = new Fuse(notes, fuseOptionsTag);
     // Computed
     let tagsList;
     tagsList = searchTag.length !== 0 ? getUniqueTag(fuseTag.search(searchTag).map(item => ({ ...item.item }))) : getUniqueTag(notes);

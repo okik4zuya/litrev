@@ -22,7 +22,7 @@ const Notes = () => {
     setIsEdit,
     searchNote,
     setSearchNote,
-    fuseOptions
+    fuseOptionsNote
   } = useStore(state => state)
   // Local States
   const [isLoading, setIsLoading] = useState(false);
@@ -111,7 +111,7 @@ const Notes = () => {
     router.query.search && setSearchNote(router.query.search)
   }, [])
 
-  const fuseNote = new Fuse(notes, fuseOptions);
+  const fuseNote = new Fuse(notes, fuseOptionsNote);
   // Computed
   let notesList;
   notesList = searchNote.length !== 0 ? fuseNote.search(searchNote).map(item => ({ ...item.item })) : notes;

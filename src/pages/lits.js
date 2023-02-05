@@ -19,7 +19,7 @@ const Lits = () => {
         setIsEdit,
         searchLit,
         setSearchLit,
-        fuseOptions,
+        fuseOptionsLit,
         notes
     } = useStore(state => state);
 
@@ -80,7 +80,7 @@ const Lits = () => {
         setShowLitForm(true)
     }
 
-    const fuseLit = new Fuse(lits, fuseOptions);
+    const fuseLit = new Fuse(lits, fuseOptionsLit);
 
     // Computed
     let litslist;
