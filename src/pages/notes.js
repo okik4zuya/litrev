@@ -15,6 +15,7 @@ var _ = require('lodash');
 const Notes = () => {
   const router = useRouter();
   const {
+    lits,
     notes,
     showNoteForm,
     setShowNoteForm,
@@ -117,7 +118,7 @@ const Notes = () => {
   notesList = searchNote.length !== 0 ? fuseNote.search(searchNote).map(item => ({ ...item.item })) : notes;
 
   const tagOptions = getUniqueValue(notes.map(item => ({ value: item.tag, label: item.tag })));
-  const titleOptions = getUniqueValue(notes.map(item => ({ value: item.title, label: item.title })));
+  const titleOptions = lits.map(item => ({ value: item.title, label: item.title }));
   return (
     <>
       {showNoteForm &&
