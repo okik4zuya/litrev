@@ -11,6 +11,7 @@ import { getUniqueValue, toExcerpt } from '@/functions';
 import { addDoc, collection, deleteDoc, doc, Timestamp, updateDoc } from 'firebase/firestore';
 import { db } from 'firebase-config';
 import Fuse from "fuse.js";
+var _ = require('lodash');
 
 const Lits = () => {
     const {
