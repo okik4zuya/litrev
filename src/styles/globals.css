@@ -3,14 +3,26 @@
 @tailwind utilities;
 
 .hide-scrollbar::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
-*{
+* {
   box-sizing: border-box;
 }
-ol{
+ol {
   list-style-type: decimal;
 }
-ul{
+ul {
   list-style-type: square;
+}
+ol,
+ul {
+  margin-left: 1rem;
+}
+h1{
+  font-weight: 700;
+  font-size: 1.25;
+}
+h2{
+  font-weight: 700;
+  font-size: 1rem;
 }
