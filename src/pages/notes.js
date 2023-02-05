@@ -189,7 +189,7 @@ const Notes = () => {
         <div className='text-lg font-bold text-left w-full'>Result: {notesList.length}</div>
       </div>
 
-      <div className='mt-2 md:w-1/2 w-full'>
+      <div className='mt-2 md:w-1/2 w-full pb-20'>
         {notes.length !== 0 && notesList.map((item, key) => (
           <div key={key}>
             <NoteCard data={item} handleEditClick={handleEditClick} deleteNote={deleteNote} />
@@ -241,6 +241,7 @@ const NoteCard = (props) => {
               color: lits.filter(item => item.title === data.title)[0]?.link ? "#5068a9" : "#000000",
             }}
           >
+            {lits.filter(item=> item.title === data.title).length === 0 ? "[No Entry] " : ""}
             
             {isExcerpt ? toExcerpt(data.title, 100) : data.title}
           </a>

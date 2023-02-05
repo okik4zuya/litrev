@@ -26,8 +26,7 @@ const Tags = () => {
             </div>
             <div className='mt-2 md:w-1/2 w-full'>
                 {tagsList.map((item, key) => (
-                    <div  key={key} className="cursor-pointer text-md font-semibold flex flex-col items-center bg-white rounded-lg shadow-md p-4 mb-2"
-                    onClick={()=>{setTab("Notes"); setSearchNote(item.tag)}}
+                    <div key={key} className="text-md font-semibold flex flex-col items-center bg-white rounded-lg shadow-md p-4 mb-2"
 
                     >
                         <div className='w-full text-lg font-bold'
@@ -35,7 +34,10 @@ const Tags = () => {
                             {toExcerpt(item.tag, 100)}
                         </div>
                         <div className='flex justify-end w-full mt-2 items-center'>
-                            <div className=' py-1 px-4 rounded-lg text-white font-bold' style={{ background: "rgb(80, 104, 169)" }}>
+                            <div className=' py-1 px-4 rounded-lg text-white font-bold cursor-pointer'
+                                style={{ background: "rgb(80, 104, 169)" }}
+                                onClick={() => { setTab("Notes"); setSearchNote(item.tag) }}
+                            >
                                 {notes.filter(i => i.tag == item.tag).length} Notes
                             </div>
                         </div>

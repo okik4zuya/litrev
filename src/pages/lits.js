@@ -156,14 +156,16 @@ const Lits = () => {
                 {litslist.map((item, key) => (
                     <div key={key} className="text-md font-semibold flex flex-col items-center bg-white rounded-lg shadow-md p-4 mb-2"
                     >
-                        <div className='cursor-pointer w-full text-xl font-bold'
-                            onClick={() => {setTab("Notes");setSearchNote(item.title)}}
+                        <div className='w-full text-lg font-bold'
                         >
                             {toExcerpt(item.title, 100)}
                         </div>
                         <div className='flex justify-end w-full mt-2 items-center'>
                             <div className='flex'>
-                                <div className='py-1 px-4 rounded-lg text-sm text-white font-bold' style={{ background: "rgb(80, 104, 169)" }}>
+                                <div className='py-1 px-4 rounded-lg text-sm text-white font-bold cursor-pointer'
+                                    style={{ background: "rgb(80, 104, 169)" }}
+                                    onClick={() => { setTab("Notes"); setSearchNote(item.title) }}
+                                >
                                     {notes.filter(i => i.title == item.title).length} Notes
                                 </div>
                             </div>
