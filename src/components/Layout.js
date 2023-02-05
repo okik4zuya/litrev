@@ -11,6 +11,8 @@ import Fetcher from "./Fetcher";
 export default function Layout(props) {
     const { children } = props;
     const {
+        tab,
+        setTab,
         lits,
         notes,
         tags,
@@ -31,20 +33,20 @@ export default function Layout(props) {
     // Local Computed
     let searchValue, setSearch, searchPlaceholder;
 
-    switch (router.route) {
-        case "/lits": {
+    switch (tab) {
+        case "Literatures": {
             searchValue = searchLit;
             setSearch = setSearchLit;
             searchPlaceholder = "Search Literatures";
         };
             break;
-        case "/notes": {
+        case "Notes": {
             searchValue = searchNote;
             setSearch = setSearchNote;
             searchPlaceholder = "Search Notes";
         };
             break;
-        case "/tags": {
+        case "Tags": {
             searchValue = searchTag;
             setSearch = setSearchTag;
             searchPlaceholder = "Search Tags"
@@ -85,11 +87,11 @@ export default function Layout(props) {
                 <div className="sticky top-0 w-full py-2 px-2 flex flex-col items-center justify-center" style={{ background: "#5068a9", zIndex:"1" }}>
                     <div className="flex mb-4">
                         {tabs.map((item, key) => (
-                            <Link href={item.link} key={key}>
+                            <div key={key} onClick={()=> setTab(item.title)}>
                                 <div className='flex mx-3 pt-2 justify-center items-center cursor-pointer text-white'
                                     style={{
-                                        borderTop: item.link === router.route ? "4px solid white" : "none",
-                                        fontWeight: item.link === router.route ? "700" : "400"
+                                        borderTop: item.title === tab ? "4px solid white" : "none",
+                                        fontWeight: item.title === tab ? "700" : "400"
                                     }}
                                 >
                                     <div className='flex-1 flex justify-center mr-2'>{item.title}</div>
@@ -100,7 +102,7 @@ export default function Layout(props) {
                                         {item.badge}
                                     </div>
                                 </div>
-                            </Link>
+                            </div>
                         ))}
                     </div>
                     <div className='flex relative w-full md:w-1/2'>

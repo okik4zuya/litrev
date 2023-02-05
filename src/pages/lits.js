@@ -1,12 +1,8 @@
-import Layout from '@/components/Layout';
 import Loader from '@/components/Loader';
 import { useStore } from '@/store';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import 'react-quill/dist/quill.snow.css';
-import dynamic from "next/dynamic";
-const ReactQuill = dynamic(import('react-quill'), { ssr: false })
-import Creatable, { useCreatable } from 'react-select/creatable';
 import { getUniqueValue, toExcerpt } from '@/functions';
 import { addDoc, collection, deleteDoc, doc, Timestamp, updateDoc } from 'firebase/firestore';
 import { db } from 'firebase-config';
@@ -15,9 +11,11 @@ var _ = require('lodash');
 
 const Lits = () => {
     const {
+        setTab,
         lits,
         showLitForm,
         setShowLitForm,
+        setSearchNote,
         isEdit,
         setIsEdit,
         searchLit,
@@ -83,23 +81,14 @@ const Lits = () => {
         setShowLitForm(true)
     }
 
-    const router = useRouter();
-
-    const tagOptions = getUniqueValue(lits.map(item => ({ value: item.tag, label: item.tag })));
-    const titleOptions = getUniqueValue(lits.map(item => ({ value: item.title, label: item.title })));
-
     const fuseLit = new Fuse(lits, fuseOptions);
 
     // Computed
     let litslist;
     litslist = searchLit.length !== 0 ? fuseLit.search(searchLit).map(item => ({ ...item.item })) : lits;
-    console.log(lits)
-
-
-
 
     return (
-        <Layout>
+        <>
             {/*Absolut Start*/}
 
             {showLitForm &&
@@ -168,7 +157,7 @@ const Lits = () => {
                     <div key={key} className="text-md font-semibold flex flex-col items-center bg-white rounded-lg shadow-md p-4 mb-2"
                     >
                         <div className='cursor-pointer w-full text-xl font-bold'
-                            onClick={() => setSearchLit(item.title)}
+                            onClick={() => {setTab("Notes");setSearchNote(item.title)}}
                         >
                             {toExcerpt(item.title, 100)}
                         </div>
@@ -210,7 +199,7 @@ const Lits = () => {
 
             </div>
 
-        </Layout>
+        </>
     )
 
 }

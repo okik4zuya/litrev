@@ -1,18 +1,14 @@
-
-import Layout from '@/components/Layout';
 import { useStore } from '@/store';
-import { Timestamp } from 'firebase/firestore';
-import { useRouter } from 'next/router';
 import Fuse from "fuse.js";
 import { getUniqueTag, toExcerpt } from '@/functions';
-import Link from 'next/link';
 
 const Tags = () => {
     const {
         notes,
         fuseOptions,
         searchTag,
-        setSearchNote
+        setSearchNote,
+        setTab
     } = useStore(state => state);
 
 
@@ -24,13 +20,15 @@ const Tags = () => {
 
 
     return (
-        <Layout>
+        <>
             <div className='w-full mt-2 md:w-1/2'>
                 <div className='text-lg font-bold text-left w-full'>Result: {tagsList.length}</div>
             </div>
             <div className='mt-2 md:w-1/2 w-full'>
                 {tagsList.map((item, key) => (
-                    <Link href={`/notes?search=${item.tag}`} key={key} className="cursor-pointer text-md font-semibold flex flex-col items-center bg-white rounded-lg shadow-md p-4 mb-2"
+                    <div  key={key} className="cursor-pointer text-md font-semibold flex flex-col items-center bg-white rounded-lg shadow-md p-4 mb-2"
+                    onClick={()=>{setTab("Notes"); setSearchNote(item.tag)}}
+
                     >
                         <div className='w-full text-lg font-bold'
                         >
@@ -41,12 +39,12 @@ const Tags = () => {
                                 {notes.filter(i => i.tag == item.tag).length} Notes
                             </div>
                         </div>
-                    </Link>
+                    </div>
                 ))}
 
             </div>
 
-        </Layout>
+        </>
     )
 
 }

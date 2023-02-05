@@ -1,4 +1,3 @@
-import Layout from '@/components/Layout';
 import { getUniqueValue, toExcerpt } from '@/functions';
 import { useStore } from '@/store';
 import { addDoc, collection, deleteDoc, doc, Timestamp, updateDoc } from 'firebase/firestore';
@@ -120,7 +119,7 @@ const Notes = () => {
   const tagOptions = getUniqueValue(notes.map(item => ({ value: item.tag, label: item.tag })));
   const titleOptions = getUniqueValue(notes.map(item => ({ value: item.title, label: item.title })));
   return (
-    <Layout>
+    <>
       {showNoteForm &&
         <div className='fixed top-0 left-0 bottom-0 right-0 flex items-center justify-center p-4' style={{ background: "#0000004d", zIndex: "1" }}>
           <div className='fixed top-0 left-0 bottom-0 right-0 cursor-pointer' style={{ zIndex: "1" }} onClick={() => setShowNoteForm(false)}></div>
@@ -198,7 +197,7 @@ const Notes = () => {
         ))}
 
       </div>
-    </Layout>
+    </>
   )
 
 }
