@@ -44,7 +44,7 @@ export const useStore = create((set, get) => ({
         findAllMatches: true,
         threshold: 0.4,
         location: 0,
-        distance: 100,
+        distance: 400,
         ignoreLocation: false,
         includeMatcher: true,
         maxPatternLength: 32,
