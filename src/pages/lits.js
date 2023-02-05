@@ -164,7 +164,7 @@ const Lits = () => {
                 <div className='text-lg font-bold text-left w-full'>Result: {litslist.length}</div>
             </div>
             <div className='mt-2 md:w-1/2 w-full pb-20'>
-                {_.orderBy(litslist, ['updated'], ['desc']).map((item, key) => (
+                {litslist.map((item, key) => (
                     <div key={key} className="text-md font-semibold flex flex-col items-center bg-white rounded-lg shadow-md p-4 mb-2"
                     >
                         <div className='cursor-pointer w-full text-xl font-bold'
@@ -175,7 +175,7 @@ const Lits = () => {
                         <div className='flex justify-end w-full mt-2 items-center'>
                             <div className='flex'>
                                 <div className='py-1 px-4 rounded-lg text-sm text-white font-bold' style={{ background: "rgb(80, 104, 169)" }}>
-                                    {notes.filter(i => i.tag == item.tag).length} Notes
+                                    {notes.filter(i => i.title == item.title).length} Notes
                                 </div>
                             </div>
                             <div className='flex flex-1 ml-2 items-center'>
