@@ -8,8 +8,9 @@ import dynamic from "next/dynamic";
 const ReactQuill = dynamic(import('react-quill'), { ssr: false })
 import Creatable, { useCreatable } from 'react-select/creatable';
 import { getUniqueValue, toExcerpt } from '@/functions';
-import { addDoc, collection, doc, Timestamp, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, Timestamp, updateDoc } from 'firebase/firestore';
 import { db } from 'firebase-config';
+import Fuse from "fuse.js";
 
 const Lits = () => {
     const {
@@ -19,7 +20,9 @@ const Lits = () => {
         isEdit,
         setIsEdit,
         searchLit,
-        setSearchLit
+        setSearchLit,
+        fuseOptions,
+        notes
     } = useStore(state => state);
 
 
@@ -29,17 +32,22 @@ const Lits = () => {
     const blankData = {
         title: "",
         link: "",
-        created: Timestamp.now()
+        type: "literature",
+        updated: Timestamp.now()
     }
     const [tempData, setTempData] = useState(blankData);
 
     // Functions
     const createLit = async (e) => {
         e.preventDefault()
-
         if (tempData.title.length) {
             setIsLoading(true);
-            await addDoc(collection(db, 'literatures'), { ...tempData, created: Timestamp.now() })
+            await addDoc(collection(db, 'posts'), {
+                ...tempData,
+                created: Timestamp.now(),
+                updated: Timestamp.now(),
+                type: "literature"
+            })
             setShowLitForm(false)
             setTempData(blankData)
             setIsLoading(false);
@@ -51,21 +59,27 @@ const Lits = () => {
     const updateLit = async (e, id) => {
         e.preventDefault()
         setIsLoading(true);
-        await updateDoc(doc(db, 'literatures', id), { ...tempData, updated: Timestamp.now() });
+        await updateDoc(doc(db, 'posts', id), { ...tempData, updated: Timestamp.now() });
         setIsLoading(false)
         setShowLitForm(!showLitForm);
-        setIsEdit(!isEdit)
+        setIsEdit(false)
+    }
+    const deleteLit = async (id) => {
+        if (window.confirm('Are you sure?')) {
+            await deleteDoc(doc(db, 'posts', id));
+        }
+
     }
     const handleFormButton = (e) => {
         isEdit ? updateLit(e, ID) : createLit(e);
         setTempData(blankData);
         setSearchLit("");
     }
-    const handleEditLit = (id) => {
-        setIsEdit(!isEdit)
+    const openLitFormEdit = (id) => {
+        setIsEdit(true)
         setID(id);
         setTempData(lits.filter(item => item.id == id)[0])
-        setShowLitForm(!showLitForm)
+        setShowLitForm(true)
     }
 
     const router = useRouter();
@@ -73,7 +87,14 @@ const Lits = () => {
     const tagOptions = getUniqueValue(lits.map(item => ({ value: item.tag, label: item.tag })));
     const titleOptions = getUniqueValue(lits.map(item => ({ value: item.title, label: item.title })));
 
-    const test = lits.map(item => ({ created: item.created }));
+    const fuseLit = new Fuse(lits, fuseOptions);
+
+    // Computed
+    let litslist;
+    litslist = searchLit.length !== 0 ? fuseLit.search(searchLit).map(item => ({ ...item.item })) : lits;
+    console.log(lits)
+
+
 
 
     return (
@@ -90,14 +111,21 @@ const Lits = () => {
                             </div>
                             :
                             <form>
-                                <div className='mb-4 font-bold text-xl'>{isEdit ? "Update" : "Add"} Tag</div>
+                                <div className='mb-4 font-bold text-xl'>{isEdit ? "Update" : "Add"} Literature</div>
                                 <div className='mt-2'>
-                                    <Creatable
+                                    {/* <Creatable
                                         className='outline-none focus:border-none'
                                         options={titleOptions}
                                         defaultInputValue={tempData.title}
                                         placeholder="Select Title..."
                                         onChange={value => setTempData({ ...tempData, title: value.value })}
+                                    /> */}
+                                    <input
+                                        className='bg-white rounded-md w-full px-4 py-2 outline-none'
+                                        value={tempData.title}
+                                        placeholder="Insert Title..."
+                                        style={{ border: " 1px solid hsl(0, 0%, 80%)" }}
+                                        onChange={(e) => { setTempData({ ...tempData, title: e.target.value }) }}
                                     />
                                 </div>
                                 <div className='mt-2'>
@@ -122,27 +150,34 @@ const Lits = () => {
                     </div>
                 </div>
             }
-            {/*Absolut End*/}
-            <div className='w-full md:w-1/2'>
-                <div className='mt-2 text-lg font-bold'>Result: </div>
+            <div className='fixed bottom-4 right-4 mt-4 md:w-20 w-16 flex items-center justify-center cursor-pointer'
+                onClick={() => { setShowLitForm(true); setIsEdit(false); setTempData(blankData) }}
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-16 h-16">
+                    <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 9a.75.75 0 00-1.5 0v2.25H9a.75.75 0 000 1.5h2.25V15a.75.75 0 001.5 0v-2.25H15a.75.75 0 000-1.5h-2.25V9z" clipRule="evenodd" />
+                </svg>
+
             </div>
-            <div className='mt-2 md:w-1/2 w-full'>
-                {lits.map((item, key) => (
+            {/*Absolut End*/}
+            <div className='w-full mt-2 md:w-1/2'>
+                <div className='text-lg font-bold text-left w-full'>Result: {litslist.length}</div>
+            </div>
+            <div className='mt-2 md:w-1/2 w-full pb-20'>
+                {_.orderBy(litslist, ['updated'], ['desc']).map((item, key) => (
                     <div key={key} className="text-md font-semibold flex flex-col items-center bg-white rounded-lg shadow-md p-4 mb-2"
                     >
-                        <div className='cursor-pointer'
+                        <div className='cursor-pointer w-full text-xl font-bold'
                             onClick={() => setSearchLit(item.title)}
                         >
                             {toExcerpt(item.title, 100)}
                         </div>
                         <div className='flex justify-end w-full mt-2 items-center'>
-                            <div onClick={() => handleEditLit(item.id)} className="cursor-pointer mr-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                                    <path d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 00-1.32 2.214l-.8 2.685a.75.75 0 00.933.933l2.685-.8a5.25 5.25 0 002.214-1.32l8.4-8.4z" />
-                                    <path d="M5.25 5.25a3 3 0 00-3 3v10.5a3 3 0 003 3h10.5a3 3 0 003-3V13.5a.75.75 0 00-1.5 0v5.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5V8.25a1.5 1.5 0 011.5-1.5h5.25a.75.75 0 000-1.5H5.25z" />
-                                </svg>
+                            <div className='flex'>
+                                <div className='py-1 px-4 rounded-lg text-sm text-white font-bold' style={{ background: "rgb(80, 104, 169)" }}>
+                                    {notes.filter(i => i.tag == item.tag).length} Notes
+                                </div>
                             </div>
-                            <div className='flex items-center'>
+                            <div className='flex flex-1 ml-2 items-center'>
                                 <a href={item.link}
                                     target="_blank"
                                     className="font-semibold"
@@ -156,6 +191,17 @@ const Lits = () => {
                                         <path fillRule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z" clipRule="evenodd" />
                                     </svg>
                                 </a>
+                            </div>
+                            <div onClick={() => openLitFormEdit(item.id)} className="cursor-pointer mr-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                                    <path d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 00-1.32 2.214l-.8 2.685a.75.75 0 00.933.933l2.685-.8a5.25 5.25 0 002.214-1.32l8.4-8.4z" />
+                                    <path d="M5.25 5.25a3 3 0 00-3 3v10.5a3 3 0 003 3h10.5a3 3 0 003-3V13.5a.75.75 0 00-1.5 0v5.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5V8.25a1.5 1.5 0 011.5-1.5h5.25a.75.75 0 000-1.5H5.25z" />
+                                </svg>
+                            </div>
+                            <div className='ml-2 cursor-pointer' onClick={() => deleteLit(item.id)}>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                                    <path fillRule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 013.369 0c1.603.051 2.815 1.387 2.815 2.951zm-6.136-1.452a51.196 51.196 0 013.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 00-6 0v-.113c0-.794.609-1.428 1.364-1.452zm-.355 5.945a.75.75 0 10-1.5.058l.347 9a.75.75 0 101.499-.058l-.346-9zm5.48.058a.75.75 0 10-1.498-.058l-.347 9a.75.75 0 001.5.058l.345-9z" clipRule="evenodd" />
+                                </svg>
                             </div>
                         </div>
                     </div>

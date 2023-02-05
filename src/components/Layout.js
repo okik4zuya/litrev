@@ -1,3 +1,4 @@
+import { getUniqueTag } from "@/functions";
 import { useStore } from "@/store";
 import { db } from "firebase-config";
 import { collection, onSnapshot, where } from "firebase/firestore";
@@ -67,30 +68,10 @@ export default function Layout(props) {
         {
             title: "Tags",
             link: "/tags",
-            badge: tags.length
+            badge: getUniqueTag(notes).length
         }
     ]
 
-    // Firebase functions
-    const getLits = async () => {
-        onSnapshot(collection(db, 'posts'), where("type", "==", "literature"), docs => {
-            setLits(docs.docs.map(doc => ({ ...doc.data(), id: doc.id })));
-            //setLits(docs.docs.map(doc => ({...doc.data(), id: doc.id, timestamp: doc.timestamp})))
-        })
-    }
-    const getNotes = async () => {
-        onSnapshot(collection(db, 'posts'), where("type", "==", "note"), docs => {
-            setNotes(docs.docs.map(doc => ({ ...doc.data(), id: doc.id })));
-        })
-    }
-    useEffect(() => {
-        getLits();
-        getNotes()
-    }, [])
-
-    // Debugging
-    // console.log(lits)
-    // console.log(notes)
 
     return (
         <Fetcher>
@@ -100,11 +81,11 @@ export default function Layout(props) {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <main className="flex flex-col items-center bg-gray-100">
-                <div className="sticky top-0 w-full py-2 px-2 flex flex-col items-center justify-center" style={{ background: "#5068a9" }}>
+            <main className="flex flex-col items-center bg-gray-100 min-h-screen">
+                <div className="sticky top-0 w-full py-2 px-2 flex flex-col items-center justify-center" style={{ background: "#5068a9", zIndex:"1" }}>
                     <div className="flex mb-4">
-                        {tabs.map(item => (
-                            <Link href={item.link}>
+                        {tabs.map((item, key) => (
+                            <Link href={item.link} key={key}>
                                 <div className='flex mx-3 pt-2 justify-center items-center cursor-pointer text-white'
                                     style={{
                                         borderTop: item.link === router.route ? "4px solid white" : "none",
@@ -140,14 +121,8 @@ export default function Layout(props) {
                         }
                     </div>
                 </div>
+                <div className="px-4 w-full flex flex-col items-center">
                 {children}
-                <div className='fixed bottom-4 right-4 mt-4 md:w-20 w-16 flex items-center justify-center cursor-pointer'
-                    onClick={() => setShowLitForm(!showLitForm)}
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-16 h-16">
-                        <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 9a.75.75 0 00-1.5 0v2.25H9a.75.75 0 000 1.5h2.25V15a.75.75 0 001.5 0v-2.25H15a.75.75 0 000-1.5h-2.25V9z" clipRule="evenodd" />
-                    </svg>
-
                 </div>
             </main>
         </Fetcher>

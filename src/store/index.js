@@ -12,6 +12,19 @@ export const useStore = create((set, get) => ({
     showLitForm: false,
     showNoteForm: false,
     isEdit: false,
+    fuseOptions : {
+        shouldSort: true,
+        matchAllTokens: true,
+        findAllMatches: true,
+        threshold: 0.5,
+        location: 0,
+        distance: 200,
+        ignoreLocation: false,
+        includeMatcher: true,
+        maxPatternLength: 32,
+        minMatchCharLength: 1,
+        keys: ["tag", "title", "text"]
+    },
 
     // Set functions
     setSearch: (value) => { set({ search: value }) },
